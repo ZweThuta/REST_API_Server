@@ -15,12 +15,13 @@ router.post(
       .isLength({ max: 30 })
       .withMessage("Title is too long."),
 
-      body("content")
+    body("content")
       .trim()
       .isLength({ min: 5 })
-      .withMessage("Content is too short.")
+      .withMessage("Content is too short."),
   ],
   noteController.createNote
 );
+router.get("/notes/:id", noteController.getNote);
 
 module.exports = router;
