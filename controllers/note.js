@@ -55,3 +55,54 @@ exports.getNote = (req, res, next) => {
       });
     });
 };
+
+exports.deleteNote = (req, res, next) => {
+  const { id } = req.params;
+  Note.findByIdAndDelete(id)
+    .then((_) => {
+      return res.status(204).json({
+        message: "Note deleted",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({
+        message: "Something wrong!",
+      });
+    });
+};
+
+exports.getOldNote = (req, res, next) => {
+  const { id } = req.params;
+  Note.findById(id)
+    .then((note) => {
+      return res.status(200).json(note);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({
+        message: "Something wrong!",
+      });
+    });
+};
+
+exports.updateNote = (req, res, next) => {
+  const { noteId, title, content } = req.body;
+  Note.findById(noteId)
+    .then((note) => {
+      note.title = title;
+      note.content = content;
+      return note.save();
+    })
+    .then((_) => {
+      res.status(200).json({
+        message: "Save successfully!",
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({
+        message: "Something wrong!",
+      });
+    });
+};

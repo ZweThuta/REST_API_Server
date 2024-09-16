@@ -24,4 +24,10 @@ router.post(
 );
 router.get("/notes/:id", noteController.getNote);
 
+router.delete("/delete/:id", noteController.deleteNote);
+
+router.get("/edit/:id", noteController.getOldNote);
+
+router.post("/edit", noteController.updateNote);
+
 module.exports = router;
