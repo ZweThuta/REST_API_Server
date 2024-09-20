@@ -12,6 +12,9 @@ const noteSchema = new Schema(
       required: true,
       minLength: 10,
     },
+    cover_image: {
+      type: String,
+    },
     creator: {
       type: String,
       default: "John Doe",
