@@ -1,12 +1,25 @@
 const { validationResult } = require("express-validator");
 const Note = require("../models/node");
-const {unlink} = require("../utils/unlink");
+const { unlink } = require("../utils/unlink");
 
 exports.getNotes = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const perPage = 6;
+  let totalNotes;
+  let totalPages;
+  
   Note.find()
-    .sort({ createdAt: -1 })
+    .countDocuments()
+    .then((counts) => {
+      totalNotes = counts;
+      totalPages = Math.ceil(totalNotes/perPage)
+      return Note.find()
+        .sort({ createdAt: -1 })
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage);
+    })
     .then((notes) => {
-      return res.status(200).json(notes);
+      return res.status(200).json({notes,totalNotes,totalPages});
     })
     .catch((err) => {
       res.status(404).json({
@@ -31,7 +44,7 @@ exports.createNote = (req, res, next) => {
   Note.create({
     title,
     content,
-    cover_image:cover_image?cover_image.path : "",
+    cover_image: cover_image ? cover_image.path : "",
   })
     .then((_) => {
       return res.status(201).json({
@@ -62,15 +75,15 @@ exports.getNote = (req, res, next) => {
 
 exports.deleteNote = (req, res, next) => {
   const { id } = req.params;
-  Note.findById(id).then(note =>{
-    unlink(note.cover_image)
-    return Note.findByIdAndDelete(id)
-    .then((_) => {
-      return res.status(204).json({
-        message: "Note deleted",
+  Note.findById(id)
+    .then((note) => {
+      unlink(note.cover_image);
+      return Note.findByIdAndDelete(id).then((_) => {
+        return res.status(204).json({
+          message: "Note deleted",
+        });
       });
     })
-  })
     .catch((err) => {
       console.log(err);
       res.status(404).json({
@@ -100,8 +113,8 @@ exports.updateNote = (req, res, next) => {
     .then((note) => {
       note.title = title;
       note.content = content;
-      if(cover_image){
-        unlink(note.cover_image)
+      if (cover_image) {
+        unlink(note.cover_image);
         note.cover_image = cover_image.path;
       }
       return note.save();

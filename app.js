@@ -7,6 +7,9 @@ const multer = require("multer");
 const path = require("path");
 const app = express();
 
+const noteRoute = require("./routes/note");
+const authRoute = require("./routes/auth");
+
 const storageConfigure = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads");
@@ -29,7 +32,6 @@ const filterConfigure = (req, file, cb) => {
   }
 };
 
-const noteRoute = require("./routes/note");
 
 app.use("/uploads",express.static(path.join(__dirname,"uploads")))
 app.use(bodyParser.json());
@@ -41,6 +43,7 @@ app.use(
 app.use(cors());
 
 app.use(noteRoute);
+app.use(authRoute);
 
 mongoose
   .connect(process.env.MONGO_URL)
